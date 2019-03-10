@@ -7,7 +7,7 @@ var router = express.Router();
 
 
 router.get('/poll', function(req, res, next) {
-  res.render('view');
+  res.render('view',{session_id : Math.floor(Math.random()*10000)}); // fix to DB
 });
 
 router.get('/get_polled', function(req, res, next) {
