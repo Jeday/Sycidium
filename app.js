@@ -5,25 +5,37 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
 // import routes and attach websockets
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var pollRouter = require('./routes/poll');
+
 var app = express();
 var expressWs = require('express-ws')(app);
-
+var pollRouter = require('./routes/poll');
 
 // set up routes with websockets
 // better to use  separate module and attach webscokets to specific router object
-app.ws('/', function(ws, req) {
+
+// should use as next in routers for
+app.ws('/ws', function(ws, req,next) {
+  console.log(req);
+  ws.session_id = null
   ws.on('message', function(msg) {
+    if(!ws.session_id){
+      //TODO: cross reference id with DB
+      session_id = Number(msg);
+    }
     console.log(msg);
+    ws.send("pong");
   });
   ws.on('close', function(code,reason){
     cosole.log("Client left:"+code+" "+reason);
   });
+  setTimeout(function(){
+    if(ws.session_id = null)
+     ws.close();
+  },4000);
   console.log('socket', req.testing);
 });
 
+app.use(wsrouter);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -42,8 +54,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 
 // routes
-app.use('/index', indexRouter);
-app.use('/users', usersRouter);
 app.use(pollRouter);
 
 

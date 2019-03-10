@@ -1,10 +1,11 @@
 doctype html
 html
   head
-    title= title
+    var id = #{session_id}
+    title="View Page"
     link(rel='stylesheet', href='/stylesheets/style.css')
   body
-    main(session-id=#{session_id})
+    main(session-id=id)
       
       
   script(src="/javascripts/view.js" type="text/javascript" )
