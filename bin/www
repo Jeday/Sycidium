@@ -7,6 +7,8 @@
 var app = require('../app');
 var debug = require('debug')('poll-app:server');
 var http = require('http');
+var expressWs = require('express-ws');
+var setupWS = require('../routes/websockets');
 
 /**
  * Get port from environment and store in Express.
@@ -20,10 +22,16 @@ app.set('port', port);
  */
 
 var server = http.createServer(app);
+var wsinstance = expressWs(app,server,{leaveRouterUntouched : true});
+setupWS(wsinstance);
 
 /**
  * Listen on provided port, on all network interfaces.
  */
+
+
+
+
 
 server.listen(port);
 server.on('error', onError);

@@ -7,35 +7,10 @@ var logger = require('morgan');
 // import routes and attach websockets
 
 var app = express();
-var expressWs = require('express-ws')(app);
 var pollRouter = require('./routes/poll');
 
-// set up routes with websockets
-// better to use  separate module and attach webscokets to specific router object
 
-// should use as next in routers for
-app.ws('/ws', function(ws, req,next) {
-  console.log(req);
-  ws.session_id = null
-  ws.on('message', function(msg) {
-    if(!ws.session_id){
-      //TODO: cross reference id with DB
-      session_id = Number(msg);
-    }
-    console.log(msg);
-    ws.send("pong");
-  });
-  ws.on('close', function(code,reason){
-    cosole.log("Client left:"+code+" "+reason);
-  });
-  setTimeout(function(){
-    if(ws.session_id = null)
-     ws.close();
-  },4000);
-  console.log('socket', req.testing);
-});
 
-app.use(wsrouter);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
