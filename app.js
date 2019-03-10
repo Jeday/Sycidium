@@ -3,13 +3,16 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var http = require('http');
 
-// import routes and attach websockets
 
+// creation and configuratrion of express instance
 var app = express();
+app.server = http.createServer(app); // defining server here for express-ws
+var expressWS = require('express-ws')(app, app.server); // connecting express-ws uptop http server and express
+                                                        //to ensure proper uprage and routing of websockets
+// import router that handles ws and polling
 var pollRouter = require('./routes/poll');
-
-
 
 
 // view engine setup

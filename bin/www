@@ -20,18 +20,13 @@ app.set('port', port);
 /**
  * Create HTTP server.
  */
+// change to template because of changes in app.js to accomadate express-wp neeeds
+var server = app.server;
 
-var server = http.createServer(app);
-var wsinstance = expressWs(app,server,{leaveRouterUntouched : true});
-setupWS(wsinstance);
 
 /**
  * Listen on provided port, on all network interfaces.
  */
-
-
-
-
 
 server.listen(port);
 server.on('error', onError);

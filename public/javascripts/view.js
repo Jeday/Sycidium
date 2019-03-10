@@ -1,15 +1,36 @@
-var session_id = document.querySelector("main").attributes["session-id"];
-if(!session_id)
-  Error("invalid session id  - "+session_id);
 
-// init websocket connection and
+(function get_session_id(){
+  let recv_id = document.querySelector("main").attributes["session-id"];
+  let saved_id = Cookies.get('session_id');
+  if(saved_id){
+    Cookies.set('session_id', saved_id, { expires: 1});
+    var session_id = saved_id;
+  }
+  else{
+    Cookies.set('session_id', recv_id, { expires: 1});
+    var session_id = recv_id;
+  }
+  if(!session_id)
+    Error("invalid session id  - "+session_id);
+})();
+
+function message_factory(payload){
+  return JSON.stringify({
+    "session_id":session_id,
+    "data":payload,
+  });
+
+}
+// init websocket connection and event listeners
 var socket = new WebSocket("ws://" + location.host + "/ws");
-socket.onopen(function(ev){
+
+socket.addEventListener('open', function(ev){
   console.log("connection open")
-  socket.send(session_id);
-  console.log(session_id);
-  socket.send("ping");
+  socket.send(message_factory(""));
 });
-socket.onmessage(function(ws,ev){
+socket.addEventListener('message', function(ws,ev){
   console.log(ws.message);
+});
+socket.addEventListener('close', function(ws,ev){
+  console.log("connection closed");
 });

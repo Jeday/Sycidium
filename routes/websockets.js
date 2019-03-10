@@ -1,30 +1,17 @@
 
 
-
+// setups WS endpoints
 function main(expressWS){
   let express = require('express');
   let router = express.Router();
   expressWS.applyTo(router);
 
-  router.ws('/ws',function(ws, req) {
-    console.log(req);
-    ws.session_id = null
+  router.ws('/*',function(ws, req) {
+    console.log("new ws connection");
     ws.on('message', function(msg) {
-      if(!ws.session_id){
-        //TODO: cross reference id with DB
-        session_id = Number(msg);
-      }
-      console.log(msg);
-      ws.send("pong");
+      ws.send(msg);
     });
-    ws.on('close', function(code,reason){
-      cosole.log("Client left:"+code+" "+reason);
-    });
-    setTimeout(function(){
-      if(ws.session_id = null)
-       ws.close();
-    },4000);
-    console.log('socket', req.testing);
+
   });
 
 
