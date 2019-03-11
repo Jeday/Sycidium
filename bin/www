@@ -7,8 +7,6 @@
 var app = require('../app');
 var debug = require('debug')('poll-app:server');
 var http = require('http');
-var expressWs = require('express-ws');
-var setupWS = require('../routes/websockets');
 
 /**
  * Get port from environment and store in Express.
