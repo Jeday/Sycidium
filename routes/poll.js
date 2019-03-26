@@ -14,6 +14,8 @@ router.get('/get_polled', function(req, res, next) {
   res.render('slave');
 });
 
+
+
 router.ws('/ws',function(ws,res){
   console.log("new ws connection");
   ws.session_id = null;
@@ -25,11 +27,9 @@ router.ws('/ws',function(ws,res){
     if(ws.session_id ==null){
       session_id = data.session_id;
     }
-    
+
   });
 
 });
-
-
 
 module.exports = router;
