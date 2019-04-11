@@ -1,47 +1,47 @@
-
-
-(function get_session_id(){
-  let recv_id = document.querySelector("main").attributes["session-id"];
-  let saved_id = Cookies.get('session_id');
-  if(saved_id){
-    Cookies.set('session_id', saved_id, { expires: 1});
-    var session_id = saved_id;
-  }
-  else{
-    Cookies.set('session_id', recv_id, { expires: 1});
-    var session_id = recv_id;
-  }
-  if(!session_id)
-    Error("invalid session id  - "+session_id);
-})();
-
-function message_factory(payload){
-  return JSON.stringify({
-    "session_id":session_id,
-    "data":payload,
-  });
-}
-// init websocket connection and event listeners
-var socket = new WebSocket("ws://" + location.host + "/ws");
-
-
-socket.addEventListener('open', function(ev){
-  console.log("connection open")
-  socket.send(message_factory(""));
-});
 socket.addEventListener('message', function(ws,ev){
-  communcator.onrecv(ws.message);
-});
-socket.addEventListener('close', function(ws,ev){
-  console.log("connection closed");
+    var data =  JSON.parse(ws.data);
+    switch (data.type) {
+      case "new_state":
+        state_handler(data.state);
+        break;
+      case "payload":
+        payload_handler(data.payload)
+      case "error":
+      default:
+          error_handler(data);
+      break;
+    }
 });
 
-// simple object incapsulating websockets features
-var communcator = {
-    session_id: session_id,
-    send: function(data){
-        socket.send(message_factory(data));
-    },
-    onrecv: function(data){
+
+function payload_handler(payload){
+    var poll = document.getElementsByClassName("poll-contanier")[0];
+    for (var i = 0; i < poll.children.length; i++) {
+     let bar = poll.children[i].getElementsByClassName("poll-bar");
+     bar.style.width = Number(payload[i])*10;
     }
+
+}
+
+
+
+function state_handler(new_state){
+  document.getElementsByClassName("poll-title")[0].innerText = new_state.title;
+  var new_poll = document.createElement("div");
+  new_poll.className = "poll-contanier";
+  for(let  i = 0; i<new_state.options.length; i++){
+    new_poll.appendChild(option_factory(new_state.options[i].title,new_state.options[i].count));
+  }
+  document.getElementsByClassName("poll-contanier")[0].replaceWith(new_poll);
+}
+
+function option_factory(title, result){
+  var option = document.createElement("div");
+  option.className = "poll-option";
+  option.innerText = title;
+  var bar = document.createElement("div");
+  bar.className = "poll-bar";
+  bar.style.width = result*10;
+  option.appendChild(bar);
+  return option;
 }
