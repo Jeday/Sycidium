@@ -17,8 +17,8 @@ socket.addEventListener('message', function(ws,ev){
 function payload_handler(payload){
     var poll = document.getElementsByClassName("poll-contanier")[0];
     for (var i = 0; i < poll.children.length; i++) {
-     let bar = poll.children[i].getElementsByClassName("poll-bar");
-     bar.style.width = Number(payload[i])*10;
+     let bar = poll.children[i].getElementsByClassName("poll-bar")[0];
+     bar.style.width = Number(payload[i])*50+"px";
     }
 
 }
@@ -41,7 +41,7 @@ function option_factory(title, result){
   option.innerText = title;
   var bar = document.createElement("div");
   bar.className = "poll-bar";
-  bar.style.width = result*10;
+  bar.style.width = result*50+"px";
   option.appendChild(bar);
   return option;
 }

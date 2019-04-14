@@ -93,10 +93,7 @@ local_db.patch_websocket = function(is_slave,ws_object,id){
 // called by websocket event when message comes
 local_db.message_from_slave = function(slave_id,ws_object,data){
     data = JSON.parse(data);
-    console.log(data);
     option_id = Number(data.payload);
-    console.log(local_db.state);
-
     if(local_db.state.voters[slave_id] == undefined){
        local_db.state.voters[slave_id] = option_id;
        local_db.state.options[option_id].count+=1;
@@ -117,9 +114,12 @@ local_db.refresh_views = function(){
     for (var i = 0; i < local_db.state.options.length; i++) {
       payload.push(local_db.state.options[i].count);
     }
+
     for(var id in local_db.views) {
+      console.log(id);
+      console.log(local_db.views[id]);
       var view = local_db.views[id];
-      if(view == {} || !view)
+      if(view == {} || !view || view.readyState != 1)
         continue;
       view.send(JSON.stringify({session_id:id, type:"payload", payload:payload}));
   }

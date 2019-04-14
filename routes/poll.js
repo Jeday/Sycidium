@@ -21,7 +21,6 @@ router.get('/get_polled', function(req, res, next) {
 
 // route for websocket update
 router.ws('/ws',function(ws,res){
-  console.log("new ws connection");
   ws.session_id = null;
   ws.type = null;
   var got_id = false;
@@ -39,7 +38,7 @@ router.ws('/ws',function(ws,res){
         db.update_view(data.session_id,ws);
         break;
       default:
-        
+
         ws.close();
     }
   });
