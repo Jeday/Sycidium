@@ -14,6 +14,7 @@ socket.addEventListener('message', function(ws,ev){
 });
 
 
+
 function payload_handler(payload){
     var poll = document.getElementsByClassName("poll-contanier")[0];
     for (var i = 0; i < poll.children.length; i++) {
@@ -45,3 +46,8 @@ function option_factory(title, result){
   option.appendChild(bar);
   return option;
 }
+
+(()=>{
+  document.querySelector(".slave-link>a").innerText = location.host+"/"+slave_shortlink;
+
+})();

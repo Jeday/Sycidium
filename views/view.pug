@@ -1,8 +1,9 @@
 extends layout.pug
 
 block content
-    main(session-id=session_id)
       .poll-title
+      .slave-link 
+        a( href = slave_shortlink ) slave_shortlink
       .poll-contanier
 block footer_scripts 
     script(src="/javascripts/view.js" type="text/javascript" )  

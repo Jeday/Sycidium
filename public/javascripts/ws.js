@@ -1,19 +1,36 @@
 
 var state_of_session = "none";
 var session_id;
+var session_type;
+var own_shortlink;
+var slave_shortlink;
+var view_shortlink;
 (function get_session_id(){
-  let recv_id = document.querySelector("main").attributes["session-id"].value;
-  let saved_id = Cookies.get('session_id');
-  //if(saved_id){
-  //  Cookies.set('session_id', saved_id, { expires: 1});
-//     session_id = saved_id;
-//    state_of_session = "continue";
-//  }
-//  else{
-    Cookies.set('session_id', recv_id, { expires: 1});
+  let main_node =  document.querySelector("main");
+  let recv_id = main_node.attributes["session-id"].value;
+  session_type = main_node.attributes["type"].value;
+  slave_shortlink =  main_node.attributes["slave-shortlink"].value;
+  view_shortlink = main_node.attributes["view-shortlink"].value;
+  switch (session_type) {
+    default:
+    case "slave":
+      own_shortlink = main_node.attributes["slave-shortlink"].value;
+      break;
+    case "view":
+      own_shortlink = main_node.attributes["view-shortlink"].value;
+      break;
+  }
+  let saved_id = Cookies.get(own_shortlink);
+  if(saved_id){
+    Cookies.set(own_shortlink, saved_id, { expires: 1});
+     session_id = saved_id;
+    state_of_session = "continue";
+  }
+  else{
+    Cookies.set(own_shortlink, recv_id, { expires: 1});
     session_id = recv_id;
     state_of_session = "login"
-//  }
+}
   if(!session_id)
     Error("invalid session id  - "+session_id);
 })();
@@ -31,16 +48,16 @@ function message_factory(payload,type){
 }
 
 // init websocket connection and event listeners
-var socket = new WebSocket("ws://" + location.host + "/ws");
+var socket = new WebSocket("ws://" + location.host + "/ws/"+own_shortlink);
 
 
 socket.addEventListener('open', function(ev){
-  console.log("connection open")
+  console.log("connection open to "+socket.url)
   socket.send(message_factory({},state_of_session));
 });
 socket.addEventListener('message', function(ws,ev){
   console.log(ws.data)
 });
 socket.addEventListener('close', function(ws,ev){
-  console.log("connection closed");
+  console.log("connection closed:");
 });
