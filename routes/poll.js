@@ -35,7 +35,6 @@ router.get('/index', function(req, res, next) {
 });
 
 router.get("/get_polled",function(req, res, next){
-    //console.log("in router");
     let id = db.create_polling_session({
       title: "poll",
       options: [
@@ -44,9 +43,7 @@ router.get("/get_polled",function(req, res, next){
         { title: "option3" }
       ],
     });
-  //  console.log(id);
     res.status(200).json({link:db.polling_sessions[id].view_link});
-
 });
 
 

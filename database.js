@@ -65,12 +65,24 @@ local_db.create_polling_session = (poll_object) => {
 
 /// example of poll object passed to polling session
 var poll_object_example = {
-  title: "poll",
-  options: [
-    { title: "option1" },
-    { title: "option2" },
-    { title: "option3" }
-  ],
+polls:[
+  {  title: "poll",
+    options: [
+      { title: "option1" },
+      { title: "option2" },
+      { title: "option3" }
+    ]
+  },
+  {
+    title: "poll2",
+    options: [
+      { title: "option1" },
+      { title: "option2" },
+      { title: "option3" }
+    ]
+  }
+]
+
 }
 
 /// example session object for reference
@@ -81,6 +93,7 @@ var example_session = {
     "sadagwt2": "ws_object"
   },
   state: {
+    current_poll: 0,
     title: "poll",
     options: [
       { title: "option1", count: 1 },
@@ -88,7 +101,26 @@ var example_session = {
       { title: "option3", count: 0 }
     ],
     voters: { "sadagwt2": 0 }
-  }
+  },
+  polls:[
+    {  title: "poll",
+      options: [
+        { title: "option1" },
+        { title: "option2" },
+        { title: "option3" }
+      ]
+    },
+    {
+      title: "poll2",
+      options: [
+        { title: "option1" },
+        { title: "option2" },
+        { title: "option3" }
+      ]
+    }
+  ]
+
+
 
 }
 
