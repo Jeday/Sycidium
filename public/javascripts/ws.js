@@ -37,8 +37,15 @@ var view_shortlink;
 
 function message_factory(payload,type){
   let cargo_name  = "none";
-  if(type == "payload" || type == "error")
-    cargo_name = type;
+  switch (type) {
+    case "error":
+      cargo_name = "error";
+      break;
+    default:
+    case "payload":
+      cargo_name = "payload";
+      break;
+  }
   let res =   {
     "session_id":session_id,
     "type":type,

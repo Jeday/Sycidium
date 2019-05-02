@@ -49,5 +49,28 @@ function option_factory(title, result){
 
 (()=>{
   document.querySelector(".slave-link>a").innerText = location.host+"/"+slave_shortlink;
+  var next = document.getElementById("next-button");
+  var prev = document.getElementById("prev-button");
+  var input = document.getElementById("pass-input");
+  var send = document.getElementById("send-button");
+
+  function press_event(event){
+      switch (event.target.id) {
+        case "next-button":
+          socket.send(message_factory({command:"next_poll"},"command"));
+          break;
+        case "prev-button":
+          socket.send(message_factory({command:"prev_poll"},"command"));
+          break;
+        case "send-button":
+          socket.send(message_factory({password:input.value},"upgrade"));
+          break;
+        default:
+      }
+  }
+  next.addEventListener('click',press_event);
+  prev.addEventListener('click',press_event);
+  send.addEventListener('click',press_event);
+
 
 })();

@@ -30,18 +30,33 @@ router.get('/:shortlink', function(req, res, next) {
     next();
 });
 
+router.get
+
 router.get('/index', function(req, res, next) {
   res.render('index');
 });
 
 router.get("/get_polled",function(req, res, next){
     let id = db.create_polling_session({
-      title: "poll",
-      options: [
-        { title: "option1" },
-        { title: "option2" },
-        { title: "option3" }
-      ],
+    password:"admin",
+    polls:[
+      {  title: "poll",
+        options: [
+          { title: "option1" },
+          { title: "option2" },
+          { title: "option3" }
+        ]
+      },
+      {
+        title: "poll2",
+        options: [
+          { title: "option4" },
+          { title: "option5" },
+          { title: "option6" }
+        ]
+      }
+    ]
+
     });
     res.status(200).json({link:db.polling_sessions[id].view_link});
 });
@@ -58,6 +73,7 @@ router.ws('/ws/:shortlink',function(ws,req){
   let poll_session = link.session;
   let got_id = false;
   // this callback fires once and passes websocket object to model
+  // imporant to remove this event handler, this happends in verifie_update
   ws.on('message', function(data){
     // session id is expected to come from client
     got_id = true;
