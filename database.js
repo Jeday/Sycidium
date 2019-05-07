@@ -73,7 +73,7 @@ local_db.create_polling_session = (poll_object) => {
     local_db.short_links[new_view_link].session=local_db.polling_sessions[new_id];
     local_db.short_links[new_slave_link].session=local_db.polling_sessions[new_id];
 
-  local_db.path_polling_session(local_db.polling_sessions[new_id]);
+  local_db.patch_polling_session(local_db.polling_sessions[new_id]);
   return new_id;
 
 }
@@ -135,15 +135,12 @@ var example_session = {
       ]
     }
   ]
-
-
-
 }
 
 
 // this methods adds alll needed methods to polling session object
 // weird style is because local_db used to be polling session object and now it encapsulates all polling sessions
-local_db.path_polling_session = (polling_session_object) => {
+local_db.patch_polling_session = (polling_session_object) => {
 
   //
   //----------------------(RE)NEW CLIENT RUITINE------------------------
@@ -225,7 +222,9 @@ local_db.path_polling_session = (polling_session_object) => {
     }
     ws_object.on("close",function(){
       polling_session_object.slaves[id] = null;
-
+      ws_object.removeAllListeners("message");
+      ws_object.removeAllListeners("open");
+      ws_object.removeAllListeners("close");
     })
 
   }

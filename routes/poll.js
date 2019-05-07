@@ -86,7 +86,6 @@ router.ws('/ws/:shortlink',function(ws,req){
     if(!got_id)
       ws.close();
   },4000);
-
 });
 
 module.exports = router;

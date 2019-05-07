@@ -5,7 +5,8 @@ socket.addEventListener('message', function(ws,ev){
         state_handler(data.state);
         break;
       case "payload":
-        payload_handler(data.payload)
+        payload_handler(data.payload);
+        break;
       case "error":
       default:
           error_handler(data);

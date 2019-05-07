@@ -56,7 +56,11 @@ function message_factory(payload,type){
 
 // init websocket connection and event listeners
 var socket = new WebSocket("ws://" + location.host + "/ws/"+own_shortlink);
-
+socket.__send = socket.send;
+socket.send = function(data){
+  console.log(data);
+  socket.__send(data);
+}
 
 socket.addEventListener('open', function(ev){
   console.log("connection open to "+socket.url)
