@@ -1,74 +1,69 @@
 
-var state_of_session = "none";
-var session_id;
-var session_type;
-var own_shortlink;
-var slave_shortlink;
-var view_shortlink;
-(function get_session_id(){
-  let main_node =  document.querySelector("main");
-  let recv_id = main_node.attributes["session-id"].value;
-  session_type = main_node.attributes["type"].value;
-  slave_shortlink =  main_node.attributes["slave-shortlink"].value;
-  view_shortlink = main_node.attributes["view-shortlink"].value;
-  switch (session_type) {
-    default:
-    case "slave":
-      own_shortlink = main_node.attributes["slave-shortlink"].value;
-      break;
-    case "view":
-      own_shortlink = main_node.attributes["view-shortlink"].value;
-      break;
-  }
-  let saved_id = Cookies.get(own_shortlink);
-  if(saved_id){
-    Cookies.set(own_shortlink, saved_id, { expires: 1});
-     session_id = saved_id;
-    state_of_session = "continue";
-  }
-  else{
-    Cookies.set(own_shortlink, recv_id, { expires: 1});
-    session_id = recv_id;
-    state_of_session = "login"
-}
-  if(!session_id)
-    Error("invalid session id  - "+session_id);
-})();
+sessionInfo.init_WS = () => {
+  sessionInfo.state_of_session = "none";
+  sessionInfo.get_session_id = ()=>{
 
-function message_factory(payload,type){
-  let cargo_name  = "none";
-  switch (type) {
-    case "error":
-      cargo_name = "error";
-      break;
-    default:
-    case "payload":
-      cargo_name = "payload";
-      break;
+    switch (sessionInfo.type) {
+      default:
+      case "slave":
+        sessionInfo.own_shortlink = sessionInfo.slaveLink;
+        break;
+      case "view":
+        sessionInfo.own_shortlink = sessionInfo.viewLink;
+        break;
+    }
+    let saved_id = Cookies.get(sessionInfo.own_shortlink);
+    if (saved_id) {
+      Cookies.set(sessionInfo.own_shortlink, saved_id, { expires: 1 });
+      sessionInfo.id = saved_id;
+      sessionInfo.state_of_session = "continue";
+    }
+    else {
+      Cookies.set(sessionInfo.own_shortlink, sessionInfo.id, { expires: 1 });
+      sessionInfo.state_of_session = "login";
+    }
+    if (!sessionInfo.id)
+      Error("invalid session id  - " + sessionInfo.id);
   }
-  let res =   {
-    "session_id":session_id,
-    "type":type,
+  sessionInfo.get_session_id();
+
+  sessionInfo.message_factory = function(data, type) {
+    let cargo_name = "none";
+    switch (type) {
+      case "error":
+        cargo_name = "error";
+        break;
+      default:
+      case "payload":
+        cargo_name = "payload";
+        break;
+    }
+    let res = {
+      "session_id": sessionInfo.id,
+      "type": type,
+    }
+    res[cargo_name] = data;
+    return JSON.stringify(res);
   }
-  res[cargo_name] = payload;
-  return JSON.stringify(res);
-}
 
-// init websocket connection and event listeners
-var socket = new WebSocket("ws://" + location.host + "/ws/"+own_shortlink);
-socket.__send = socket.send;
-socket.send = function(data){
-  console.log(data);
-  socket.__send(data);
-}
+  // init websocket connection and event listeners
+  sessionInfo.socket = new WebSocket("ws://" + location.host + "/ws/" + sessionInfo.own_shortlink);
+  sessionInfo.socket.__send = sessionInfo.socket.send;
+  sessionInfo.socket.send = function(data) {
+    console.log("Client:"+data);
+    this.__send(data);
+  }
 
-socket.addEventListener('open', function(ev){
-  console.log("connection open to "+socket.url)
-  socket.send(message_factory({},state_of_session));
-});
-socket.addEventListener('message', function(ws,ev){
-  console.log(ws.data)
-});
-socket.addEventListener('close', function(ws,ev){
-  console.log("connection closed:");
-});
+  sessionInfo.socket.addEventListener('open', function(ev) {
+    console.log("connection open to " + this.url)
+    this.send(sessionInfo.message_factory({}, sessionInfo.state_of_session));
+  });
+  sessionInfo.socket.addEventListener('message', function(ws, ev) {
+    console.log("Server:"+ws.data)
+  });
+  sessionInfo.socket.addEventListener('close', function(ws, ev) {
+    console.log("connection closed:");
+  });
+
+
+}

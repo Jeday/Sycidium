@@ -6,6 +6,7 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "@types/debounce": "^1.2.0",
     "cookie-parser": "~1.4.3",
     "debounce": "^1.2.0",
     "debug": "~2.6.9",
