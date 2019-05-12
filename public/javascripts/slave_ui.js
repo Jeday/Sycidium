@@ -1,9 +1,23 @@
+Vue.component("pollButton", {
+  props: ["isActive"],
+  methods: {},
+  computed: {
+    button_style: function() {
+      return ["md-raised", this.isActive ? "md-accent" : "md-primary"];
+    }
+  },
+  template: `
+      <md-button    :class="button_style" ><slot></slot></md-button>
+    `
+});
+
 var vw = new Vue({
   el: "#app",
   data: {
     state: {
       title: "No Poll",
-      options: []
+      options: [],
+      vote_index: -1
     },
     info: sessionInfo
   },
@@ -11,21 +25,19 @@ var vw = new Vue({
     changedTitle: function() {
       window.document.title = state.title;
       return true;
+    },
+    buttonsIsActive: function() {
+      return this.state.options.map((el, index) => {
+        return index == this.state.vote_index;
+      });
     }
   },
   methods: {
-    vote: function(index) {
-      this.state.vote_index = index;
+    vote: function(ind) {
+      this.state.vote_index = ind;
       this.info.socket.send(
-        this.info.message_factory({ vote: index }, "payload")
+        this.info.message_factory({ vote: ind }, "payload")
       );
-    },
-    button_style: function(index) {
-      console.log(index);
-      return [
-        "md-raised",
-        this.state.vote_index == index ? "md-accent" : "md-primary"
-      ];
     }
   },
   created: function() {
@@ -38,9 +50,11 @@ var vw = new Vue({
         <h2 class="poll-title ">{{state.title}}</h2>
       </div>
     </md-toolbar>
-    <md-content class="vote-container filling-flex-item">
-      <md-button  v-for="(option,index) in state.options"  v-bind:key="'option'+index" v-on:click="vote(index)"  :class="button_style(index)" >{{option.title}}</md-button>
-    </md-content>
+    <div class="vote-container filling-flex-item">
+      <pollButton class="poll-button "  v-for="(option,index) in state.options" :isActive="buttonsIsActive[index]"  v-bind:key="'option'+index" v-on:click.native="vote(index)"  >
+        {{state.options[index].title}}
+      </pollButton>
+    </div>
   </div>
   `
 });

@@ -18,3 +18,14 @@ body {
 .filling-flex-item {
   flex: 2 1;
 }
+
+.vote-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
+}
+
+.poll-button {
+  margin-left: 0px;
+}
