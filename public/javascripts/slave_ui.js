@@ -1,75 +1,76 @@
-
-
-Vue.component("votingContainer", {
-  props: ["pollState","info"],
-  computed: {
-
-  },
-  methods:{
-    vote: function(index){
-        this.info.socket.send(this.info.message_factory({vote: index },"payload"));
-    }
-  },
-  template: `
-      <div class='vote-container'>
-            <h2 class="poll-title">{{pollState.title}}</h2>
-            <div class="vote-container">
-              <button v-for="(option,index) in pollState.options" v-bind:option="option"  v-bind:key="'option'+index" v-on:click="vote(index)" >{{option.title}}</button>
-            </div>
-      </div>
-    `
-});
-
-
 var vw = new Vue({
   el: "#app",
   data: {
     state: {
       title: "No Poll",
-      options:[]
+      options: []
     },
     info: sessionInfo
   },
-  watch:{
-        state:function(newState,oldState){
-           document.title = newState.title;
-        }
+  computed: {
+    changedTitle: function() {
+      window.document.title = state.title;
+      return true;
+    }
+  },
+  methods: {
+    vote: function(index) {
+      this.state.vote_index = index;
+      this.info.socket.send(
+        this.info.message_factory({ vote: index }, "payload")
+      );
     },
-  created: function(){ this.info.init_WS()},
+    button_style: function(index) {
+      console.log(index);
+      return [
+        "md-raised",
+        this.state.vote_index == index ? "md-accent" : "md-primary"
+      ];
+    }
+  },
+  created: function() {
+    this.info.init_WS();
+  },
   template: `
-  <div>
-    <votingContainer v-bind:pollState="state" v-bind:info="info" ></votingContainer>
+  <div class="app-container">
+    <md-toolbar class="poll-toolbar static-flex-item">
+      <div class="md-toolbar-row">
+        <h2 class="poll-title ">{{state.title}}</h2>
+      </div>
+    </md-toolbar>
+    <md-content class="vote-container filling-flex-item">
+      <md-button  v-for="(option,index) in state.options"  v-bind:key="'option'+index" v-on:click="vote(index)"  :class="button_style(index)" >{{option.title}}</md-button>
+    </md-content>
   </div>
   `
 });
 
-vw.info.socket.addEventListener('message', function(ws,ev){
-    var data =  JSON.parse(ws.data);
-    switch (data.type) {
-      case "new_state":
-        state_handler(data.state);
-        break;
-      case "payload":
-        payload_handler(data.payload);
-        break;
-      case "error":
-      default:
-          error_handler(data.error);
+vw.info.socket.addEventListener("message", function(ws, ev) {
+  var data = JSON.parse(ws.data);
+  switch (data.type) {
+    case "new_state":
+      state_handler(data.state);
       break;
-    }
+    case "payload":
+      payload_handler(data.payload);
+      break;
+    case "error":
+    default:
+      error_handler(data.error);
+      break;
+  }
 });
 
-
-function state_handler(new_state){
+function state_handler(new_state) {
   vw.state = new_state;
 }
 
-function payload_handler(payload){
-    switch (payload.type) {
-      default:
-    }
+function payload_handler(payload) {
+  switch (payload.type) {
+    default:
+  }
 }
 
-function error_handler(error){
-    console.log(error);
+function error_handler(error) {
+  console.log(error);
 }

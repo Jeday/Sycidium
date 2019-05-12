@@ -177,24 +177,27 @@ local_db.patch_polling_session = polling_session_object => {
   polling_session_object.verify_update = function(
     recv_id,
     requested_type,
-    ws_object
+    ws_object,
+    old_id
   ) {
     let lookedup_type = polling_session_object.get_id_type(recv_id);
-    if (lookedup_type != requested_type) return false;
+    if (lookedup_type != requested_type) return false; // client reqeusted wrong type
     let is_slave = null;
-    switch (lookedup_type) {
-      case "slave":
-        polling_session_object.slaves[recv_id] = ws_object;
-        break;
-      case "view":
-        polling_session_object.views[recv_id] = ws_object;
-        break;
-      default:
-        return false;
-    }
+    if (lookedup_type) {
+      model_dir = polling_session_object[lookedup_type + "s"];
+      if (old_id)
+        if (
+          model_dir[old_id] &&
+          (model_dir[old_id].placeholder || model_dir[old_id].readyState > 1)
+        )
+          model_dir[old_id] = null;
+        else return false; // client tried to delete old id that is active or doesn't exists
+      model_dir[recv_id] = ws_object;
+    } else return false; //no such client id in system
     is_slave = "slave" == lookedup_type;
     polling_session_object.patch_websocket(is_slave, ws_object, recv_id);
     polling_session_object.send_state(is_slave, recv_id);
+
     return true;
   };
 
@@ -204,21 +207,27 @@ local_db.patch_polling_session = polling_session_object => {
     ws_object.removeAllListeners("message");
     ws_object.removeAllListeners("open");
     ws_object.removeAllListeners("close");
-    if (is_slave === true) {
+    if (is_slave) {
       ws_object.on("message", function(data) {
         polling_session_object.message_from_slave(id, ws_object, data);
+      });
+      ws_object.on("close", function() {
+        polling_session_object.slaves[id] = { placeholder: true };
+        ws_object.removeAllListeners("message");
+        ws_object.removeAllListeners("open");
+        ws_object.removeAllListeners("close");
       });
     } else {
       ws_object.on("message", function(data) {
         polling_session_object.message_from_view(id, ws_object, data);
       });
+      ws_object.on("close", function() {
+        polling_session_object.views[id] = { placeholder: true };
+        ws_object.removeAllListeners("message");
+        ws_object.removeAllListeners("open");
+        ws_object.removeAllListeners("close");
+      });
     }
-    ws_object.on("close", function() {
-      polling_session_object.slaves[id] = null;
-      ws_object.removeAllListeners("message");
-      ws_object.removeAllListeners("open");
-      ws_object.removeAllListeners("close");
-    });
   };
 
   //
@@ -234,8 +243,7 @@ local_db.patch_polling_session = polling_session_object => {
     try {
       data = JSON.parse(data);
       option_id = Number(data.payload.vote);
-
-    } catch(ex){
+    } catch (ex) {
       console.log("invalid user input");
       return;
     }
@@ -248,39 +256,53 @@ local_db.patch_polling_session = polling_session_object => {
     ws_object,
     data
   ) {
-    try{
-    data = JSON.parse(data);
+    try {
+      data = JSON.parse(data);
 
-    switch (data.type) {
-      case "auth":
-        if (data.payload.password == polling_session_object.password) {
-          ws_object.is_upgraded_to_admin = true;
-        }
-        if(ws_object.is_upgraded_to_admin){
-          ws_object.send(JSON.stringify({id:view_id, type: "payload", payload:{ type:"auth", auth:true }}));
-        }
-        else{
-          ws_object.send(JSON.stringify({id:view_id, type: "error", error: "Wrong Password"}));
-        }
-        break;
-      case "command":
-        if (ws_object.is_upgraded_to_admin)
-          switch (data.payload.command) {
-            case "next_poll":
-              this.swith_to_poll(polling_session_object.state.current_poll + 1);
-              break;
-            case "prev_poll":
-              this.swith_to_poll(polling_session_object.state.current_poll - 1);
-              break;
-            default:
+      switch (data.type) {
+        case "auth":
+          if (data.payload.password == polling_session_object.password) {
+            ws_object.is_upgraded_to_admin = true;
           }
-      default:
+          if (ws_object.is_upgraded_to_admin) {
+            ws_object.send(
+              JSON.stringify({
+                id: view_id,
+                type: "payload",
+                payload: { type: "auth", auth: true }
+              })
+            );
+          } else {
+            ws_object.send(
+              JSON.stringify({
+                id: view_id,
+                type: "error",
+                error: "Wrong Password"
+              })
+            );
+          }
+          break;
+        case "command":
+          if (ws_object.is_upgraded_to_admin)
+            switch (data.payload.command) {
+              case "next_poll":
+                this.swith_to_poll(
+                  polling_session_object.state.current_poll + 1
+                );
+                break;
+              case "prev_poll":
+                this.swith_to_poll(
+                  polling_session_object.state.current_poll - 1
+                );
+                break;
+              default:
+            }
+        default:
+      }
+    } catch (e) {
+      console.log("invalid user input");
+      return;
     }
-  }
-  catch(e){
-    console.log("invalid user input");
-    return;
-  }
   };
 
   /// updates all views with newer data from model

@@ -1,8 +1,7 @@
-
 sessionInfo.init_WS = () => {
+  var old_id;
   sessionInfo.state_of_session = "none";
-  sessionInfo.get_session_id = ()=>{
-
+  sessionInfo.get_session_id = () => {
     switch (sessionInfo.type) {
       default:
       case "slave":
@@ -15,20 +14,18 @@ sessionInfo.init_WS = () => {
     let saved_id = Cookies.get(sessionInfo.own_shortlink);
     if (saved_id) {
       Cookies.set(sessionInfo.own_shortlink, saved_id, { expires: 1 });
+      old_id = sessionInfo.id;
       sessionInfo.id = saved_id;
       sessionInfo.state_of_session = "continue";
-    }
-    else {
+    } else {
       Cookies.set(sessionInfo.own_shortlink, sessionInfo.id, { expires: 1 });
       sessionInfo.state_of_session = "login";
     }
-    if (!sessionInfo.id)
-      Error("invalid session id  - " + sessionInfo.id);
-  }
+    if (!sessionInfo.id) Error("invalid session id  - " + sessionInfo.id);
+  };
   sessionInfo.get_session_id();
 
   sessionInfo.message_factory = function(data, type) {
-    let cargo_name = "none";
     switch (type) {
       case "error":
         cargo_name = "error";
@@ -39,31 +36,36 @@ sessionInfo.init_WS = () => {
         break;
     }
     let res = {
-      "session_id": sessionInfo.id,
-      "type": type,
-    }
+      session_id: sessionInfo.id,
+      type: type
+    };
     res[cargo_name] = data;
     return JSON.stringify(res);
-  }
+  };
 
   // init websocket connection and event listeners
-  sessionInfo.socket = new WebSocket("ws://" + location.host + "/ws/" + sessionInfo.own_shortlink);
+  sessionInfo.socket = new WebSocket(
+    "ws://" + location.host + "/ws/" + sessionInfo.own_shortlink
+  );
   sessionInfo.socket.__send = sessionInfo.socket.send;
   sessionInfo.socket.send = function(data) {
-    console.log("Client:"+data);
+    console.log("Client:" + data);
     this.__send(data);
-  }
+  };
 
-  sessionInfo.socket.addEventListener('open', function(ev) {
-    console.log("connection open to " + this.url)
-    this.send(sessionInfo.message_factory({}, sessionInfo.state_of_session));
+  sessionInfo.socket.addEventListener("open", function(ev) {
+    console.log("connection open to " + this.url);
+    this.send(
+      sessionInfo.message_factory(
+        { old_id: old_id },
+        sessionInfo.state_of_session
+      )
+    );
   });
-  sessionInfo.socket.addEventListener('message', function(ws, ev) {
-    console.log("Server:"+ws.data)
+  sessionInfo.socket.addEventListener("message", function(ws, ev) {
+    console.log("Server:" + ws.data);
   });
-  sessionInfo.socket.addEventListener('close', function(ws, ev) {
+  sessionInfo.socket.addEventListener("close", function(ws, ev) {
     console.log("connection closed:");
   });
-
-
-}
+};

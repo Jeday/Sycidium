@@ -1,0 +1,56 @@
+.poll-container {
+  display: flex;
+  flex-direction: column;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+.app-container {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.poll-bar {
+  overflow: hidden;
+  text-align: right;
+  margin: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 5px;
+}
+
+.poll-option {
+  display: flex;
+  flex-direction: row;
+}
+
+.static-flex-item {
+  flex: 0 1;
+}
+
+.filling-flex-item {
+  flex: 2 1;
+}
+
+.option-name {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 10px;
+}
+
+.poll-control {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+.poll-control-button {
+}
