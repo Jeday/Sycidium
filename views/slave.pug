@@ -1,7 +1,16 @@
 extends layout.pug
 
 block content
-      
+    script(type='text/javascript').
+      var sessionInfo = {
+        id : "#{session_id}",
+        type : "#{session_type}",
+        viewLink: "#{view_shortlink}",
+        slaveLink:  "#{slave_shortlink}"
+      }
+    main#app 
 block footer_scripts 
       link(rel="stylesheet" href="/stylesheets/slave_style.css")
-      script(src="/javascripts/slave_ui.js" type="text/javascript" )  
+      script(src="/javascripts/ws.js" type="text/javascript")  
+      script(src="/javascripts/slave_ui.js" type="text/javascript")
+    

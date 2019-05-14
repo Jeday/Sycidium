@@ -1,12 +1,14 @@
 {
   "name": "poll-app",
-  "version": "0.0.0",
+  "version": "0.7.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node ./bin/www",
+    "prod": "NODE_ENV=production PORT=80 node ./bin/www"
   },
   "dependencies": {
     "@types/debounce": "^1.2.0",
+    "body-parser": "^1.19.0",
     "cookie-parser": "~1.4.3",
     "debounce": "^1.2.0",
     "debug": "~2.6.9",

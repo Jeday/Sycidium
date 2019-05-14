@@ -27,35 +27,28 @@ router.get("/:shortlink", function(req, res, next) {
   else next();
 });
 
-router.get;
+router.get("/", function(req, res, next) {
+  res.redirect("/index");
+});
+
+router.get("/build_poll", function(req, res, next) {
+  res.render("builder");
+});
+
+router.post("/submit_poll", function(req, res, next) {
+  res.status(200).json(db.add_poll(req.body));
+});
+
+router.post("/start_poll", function(req, res, next) {
+  res.status(200).json(db.start_poll(req.body));
+});
 
 router.get("/index", function(req, res, next) {
   res.render("index");
 });
 
-router.get("/get_polled", function(req, res, next) {
-  let id = db.create_polling_session({
-    password: "admin",
-    polls: [
-      {
-        title: "poll",
-        options: [
-          { title: "option1" },
-          { title: "option2" },
-          { title: "option3" }
-        ]
-      },
-      {
-        title: "poll2",
-        options: [
-          { title: "option4" },
-          { title: "option5" },
-          { title: "option6" }
-        ]
-      }
-    ]
-  });
-  res.status(200).json({ link: db.polling_sessions[id].view_link });
+router.get("/all_polls", function(req, res, next) {
+  res.json(db.get_all_polls());
 });
 
 // route for websocket update

@@ -9,7 +9,56 @@ var debounce = require("debounce");
 // "view" "slave"
 var local_db = {
   polling_sessions: {},
-  short_links: {}
+  short_links: {},
+  poll_objects: {}
+};
+
+local_db.add_poll = poll_object => {
+  // TODO validate object from user
+  // return {result:"error", errorText: " "} if eror in user data
+  let new_id = "";
+  do {
+    new_id = crypto.randomBytes(20).toString("hex");
+  } while (local_db.poll_objects[new_id]);
+  local_db.poll_objects[new_id] = poll_object;
+  return { result: "succes" };
+};
+
+local_db.start_poll = data => {
+  //TODO validate data ffrom user
+  // return {result:"error", errorText: " "} if eror in user data
+  let poll_object = local_db.poll_objects[data.id];
+  if (poll_object && data.password == poll_object.password) {
+    let id = local_db.create_polling_session(poll_object);
+    let link = local_db.polling_sessions[id].view_link;
+    return { result: "succes", link: link };
+  } else {
+    return { result: "error", errorText: "Wrong password or poll id." };
+  }
+};
+
+/// return JSON with all aviliable info about current polls
+local_db.get_all_polls = () => {
+  let result = {
+    ongoing: [],
+    available: []
+  };
+  for (let session in local_db.polling_sessions) {
+    let session_object = local_db.polling_sessions[session];
+    result.ongoing.push({
+      main_title: session_object.main_title,
+      link: session_object.view_link
+    });
+  }
+
+  for (let poll_id in local_db.poll_objects) {
+    let poll_object = local_db.poll_objects[poll_id];
+    result.available.push({
+      main_title: poll_object.main_title,
+      id: poll_id
+    });
+  }
+  return result;
 };
 
 // creates new polling session with provided poll_object, adds short links for slave and view
@@ -55,6 +104,7 @@ local_db.create_polling_session = poll_object => {
     : {};
 
   local_db.polling_sessions[new_id] = {
+    main_title: poll_object.main_title,
     password: poll_object.password,
     view_link: new_view_link,
     slave_link: new_slave_link,
@@ -75,6 +125,7 @@ local_db.create_polling_session = poll_object => {
 
 /// example of poll object passed to polling session
 var poll_object_example = {
+  main_title: "titile of poll session",
   password: "admin",
   polls: [
     {

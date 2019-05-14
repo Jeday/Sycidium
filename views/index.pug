@@ -1,12 +1,7 @@
-doctype html
-html
-  head
-    title= title
-    link(rel='stylesheet', href='/stylesheets/style.css')
-    
-  body
-    button#get-polled-button "Click here to get polled"
-    script(src="/javascripts/index.js" type="text/javascript")      
-       
-        
-    
+extends layout.pug
+
+block content
+    main#app 
+block footer_scripts 
+      link(rel="stylesheet" href="/stylesheets/index_style.css")
+      script(src="/javascripts/index_ui.js" type="text/javascript")

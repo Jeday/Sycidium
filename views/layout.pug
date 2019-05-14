@@ -9,17 +9,7 @@ html
     link(rel="stylesheet" href="https://unpkg.com/vue-material@beta/dist/theme/default.css")
       
   body
-    script(type='text/javascript').
-      var sessionInfo = {
-        id : "#{session_id}",
-        type : "#{session_type}",
-        viewLink: "#{view_shortlink}",
-        slaveLink:  "#{slave_shortlink}"
-      }
-    
-    main#app 
-        block content
-    script(src="/javascripts/ws.js" type="text/javascript")
+    block content        
     script(src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js")
     script(src="https://unpkg.com/vue-material@beta")
     script.
