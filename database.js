@@ -72,11 +72,11 @@ local_db.create_polling_session = poll_object => {
   } while (local_db.polling_sessions[new_id]);
 
   do {
-    new_view_link = crypto.randomBytes(5).toString("hex");
+    new_view_link = crypto.randomBytes(2).toString("hex");
   } while (local_db.short_links[new_view_link]);
   local_db.short_links[new_view_link] = { session: {}, type: "view" };
   do {
-    new_slave_link = crypto.randomBytes(5).toString("hex");
+    new_slave_link = crypto.randomBytes(2).toString("hex");
   } while (local_db.short_links[new_slave_link]);
   local_db.short_links[new_slave_link] = { session: {}, type: "slave" };
   // set up done
