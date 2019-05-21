@@ -54,3 +54,7 @@ body {
 
 .poll-control-button {
 }
+
+.poll-input {
+  margin: 10px;
+}

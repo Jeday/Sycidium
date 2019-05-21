@@ -13,12 +13,12 @@ var vw = new Vue({
     errorText: ""
   },
   created: function() {
-    this.state = (() => {
-      var req = new XMLHttpRequest();
-      req.open("GET", "/all_polls", false);
-      req.send();
-      return JSON.parse(req.response);
-    })();
+    var req = new XMLHttpRequest();
+    req.open("GET", "/all_polls", true);
+    req.onload = function(ev) {
+      vw.state = JSON.parse(req.response);
+    };
+    req.send();
   },
   methods: {
     ShowPasswordDialog: function(index) {
@@ -51,27 +51,38 @@ var vw = new Vue({
       this.dialog.isActive = false;
     }
   },
+  computed: {
+    ongoingLength: function() {
+      return this.state.ongoing ? this.state.ongoing.length : 0;
+    },
+    availableLength: function() {
+      return this.state.available ? this.state.available.length : 0;
+    }
+  },
   template: `
   <md-content class="app-container">
+       <h1 class="main-title">
+          Sycidium
+       </h1>
        <div class="data-container md-layout md-alignment-top-space-around">
-         <div class="md-layout-item md-elevation-4 md-size-15 ongoing-list">
+         <div class="md-layout-item md-elevation-4 md-size-25 ongoing-list">
          <md-toolbar>
             <span class="md-title">Ongoing polls</span>
           </md-toolbar>
           <md-list>
-            <template v-if="state.ongoing.length">
-            <md-list-item v-for="(poll,index) in state.ongoing" :key="'gopoll'+index"  :href="poll.link" target="_self">
-              {{poll.main_title}}
-            </md-list-item>
+            <template v-if="ongoingLength">
+             <md-list-item v-for="(poll,index) in state.ongoing" :key="'gopoll'+index"  :href="poll.link" target="_self">
+               {{poll.main_title}}
+             </md-list-item>
             </template>
             <template v-else>
                 <md-list-item>
                   No ongoing polls right now
                 </md-list-item>
             </template>
-        </md-list>
+          </md-list>
         </div>
-        <div class="md-layout-item md-elevation-4 md-size-15 ongoing-list">
+        <div class="md-layout-item md-elevation-4 md-size-25 ongoing-list">
         <md-toolbar>
            <span class="md-title">Available polls</span>
            <div class="md-toolbar-section-end">
@@ -81,7 +92,7 @@ var vw = new Vue({
           </div>
          </md-toolbar>
          <md-list>
-           <template v-if="state.available.length">
+           <template v-if="availableLength">
            <md-list-item v-for="(poll,index) in state.available" :key="'avbpoll'+index" @click="ShowPasswordDialog(index)">
              {{poll.main_title}}
            </md-list-item>

@@ -88,7 +88,7 @@ var vw = new Vue({
   el: "#app",
   data: {
     state: {
-      title: "No Poll"
+      title: ""
     },
     info: (() => {
       (sessionInfo.password = ""), (sessionInfo.isAuthed = false);
@@ -105,6 +105,9 @@ var vw = new Vue({
         sum += elem.count;
       });
       return sum;
+    },
+    optionsLength: function() {
+      return this.state.options ? this.state.options.length : 0;
     }
   },
   watch: {
@@ -119,15 +122,17 @@ var vw = new Vue({
   <div class='app-container '>
         <md-toolbar class="poll-toolbar static-flex-item">
           <div class="md-toolbar-row">
-            <h2 class="poll-title ">{{state.title}}</h2>
+            <h2 class="poll-title">{{state.title ? state.title : "No poll"}}</h2>
           </div>
           <div class="md-toolbar-row">
           <h3 class="poll-join">Join poll at <a v-bind:href="'/'+info.slaveLink">{{link}}</a></h3>
           </div>
         </md-toolbar>
-        <md-content class='poll-container md-layout-item md-layout md-gutter filling-flex-item'>
+        <md-content v-if="optionsLength" class='poll-container md-layout-item md-layout md-gutter filling-flex-item'>
           <pollOption  v-for="(option,index) in state.options" v-bind:option="option" v-bind:portion="VoteSum ? option.count/VoteSum : 0" v-bind:key=" 'option'+index "  ></pollOption>
         </md-content>
+        <md-empty-state v-else md-label="No options for this poll" md-icon="bubble_chart" class="filling-flex-item">
+        </md-empty-state>
         <ControlPanel class="static-flex-item"v-bind:info="info" ></ControlPanel>
   </div>
 

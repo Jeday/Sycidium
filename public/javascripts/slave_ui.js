@@ -30,6 +30,9 @@ var vw = new Vue({
       return this.state.options.map((el, index) => {
         return index == this.state.vote_index;
       });
+    },
+    optionsLength: function() {
+      return this.state.options ? this.state.options.length : 0;
     }
   },
   methods: {
@@ -50,11 +53,13 @@ var vw = new Vue({
         <h2 class="poll-title ">{{state.title}}</h2>
       </div>
     </md-toolbar>
-    <div class="vote-container filling-flex-item">
+    <div v-if="optionsLength" class="vote-container filling-flex-item">
       <pollButton class="poll-button "  v-for="(option,index) in state.options" :isActive="buttonsIsActive[index]"  v-bind:key="'option'+index" v-on:click.native="vote(index)"  >
         {{state.options[index].title}}
       </pollButton>
     </div>
+    <md-empty-state v-else md-label="No options for this poll" md-icon="bubble_chart" class="filling-flex-item">
+    </md-empty-state>
   </div>
   `
 });

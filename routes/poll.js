@@ -11,14 +11,14 @@ router.get("/:shortlink", function(req, res, next) {
   let link = db.short_links[req.params.shortlink];
   if (!link) next();
   else if (link.type == "view")
-    res.render("view", {
+    res.status(200).render("view", {
       session_id: link.session.generate_new_id_view(),
       slave_shortlink: link.session.slave_link,
       view_shortlink: link.session.view_link,
       session_type: link.type
     });
   else if (link.type == "slave")
-    res.render("slave", {
+    res.status(200).render("slave", {
       session_id: link.session.generate_new_id_slave(),
       slave_shortlink: link.session.slave_link,
       session_type: link.type,
@@ -44,11 +44,11 @@ router.post("/start_poll", function(req, res, next) {
 });
 
 router.get("/index", function(req, res, next) {
-  res.render("index");
+  res.status(200).render("index");
 });
 
 router.get("/all_polls", function(req, res, next) {
-  res.json(db.get_all_polls());
+  res.status(200).json(db.get_all_polls());
 });
 
 // route for websocket update
