@@ -2,8 +2,23 @@
 ///------------------------------- Poll components -------------------------
 ///
 
-Vue.component("pollOption", {
-  props: ["option", "portion"],
+Vue.component("pollOptionName", {
+  props: ["name", "row"],
+  computed: {
+    Style: function() {
+      return {
+        "grid-row": "${this.row+1}/${this.row+2}"
+      };
+    }
+  },
+  template: `
+      <div class='grid-item-name' :style="Style">
+          <div class='option-name'>{{name}}</div>
+      </div>
+    `
+});
+Vue.component("pollOptionBar", {
+  props: ["portion", "count", "row"],
   computed: {
     barStyle: function() {
       return {
@@ -11,13 +26,17 @@ Vue.component("pollOption", {
       };
     },
     inBar: function() {
-      return this.option.count ? this.option.count : "";
+      return this.count ? this.count : "";
+    },
+    Style: function() {
+      return {
+        "grid-row": "${this.row+1}/${this.row+2}"
+      };
     }
   },
   template: `
-      <div class='poll-option md-layout-item'>
-          <div class='option-name'  >{{option.title}}</div>
-          <md-content class='poll-bar md-elevation-3' v-bind:style="barStyle"  >{{inBar}}</md-content >
+      <div class='grid-item-bar' :style="Style">
+          <md-content class='md-primary md-elevation-3 poll-bar filling-flex-item' v-bind:style="barStyle"  >{{inBar}}</md-content >
       </div>
     `
 });
@@ -88,7 +107,8 @@ var vw = new Vue({
   el: "#app",
   data: {
     state: {
-      title: ""
+      title: "",
+      maxNameWidth: 0
     },
     info: (() => {
       (sessionInfo.password = ""), (sessionInfo.isAuthed = false);
@@ -108,8 +128,19 @@ var vw = new Vue({
     },
     optionsLength: function() {
       return this.state.options ? this.state.options.length : 0;
+    },
+    gridStyle: function() {
+      return {
+        "grid-template-rows":
+          "repeat(" +
+          this.optionsLength +
+          "," +
+          (1 / this.optionsLength) * 100 +
+          "%)"
+      };
     }
   },
+  methods: {},
   watch: {
     state: function(newState, oldState) {
       document.title = newState.title;
@@ -128,8 +159,21 @@ var vw = new Vue({
           <h3 class="poll-join">Join poll at <a v-bind:href="'/'+info.slaveLink">{{link}}</a></h3>
           </div>
         </md-toolbar>
-        <md-content v-if="optionsLength" class='poll-container md-layout-item md-layout md-gutter filling-flex-item'>
-          <pollOption  v-for="(option,index) in state.options" v-bind:option="option" v-bind:portion="VoteSum ? option.count/VoteSum : 0" v-bind:key=" 'option'+index "  ></pollOption>
+        <md-content v-if="optionsLength" class='filling-flex-item option-grid' :style="gridStyle" >
+          <template v-for="(option,index) in state.options" >
+              <pollOptionName
+                :name="option.title"
+                :key="'optionName'+index"
+                :row="index">
+              </pollOptionName>
+              <pollOptionBar
+                :portion="VoteSum ? option.count/VoteSum : 0"
+                :key=" 'option'+index "
+                :count="option.count"
+                :row="index"
+                >
+              </pollOptionBar>
+          </template>
         </md-content>
         <md-empty-state v-else md-label="No options for this poll" md-icon="bubble_chart" class="filling-flex-item">
         </md-empty-state>
